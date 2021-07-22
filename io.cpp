@@ -250,7 +250,7 @@ flag FProcessSwitchFile(CONST char *szFile, FILE *file)
 
 LDone:
   is.fileIn = NULL;
-  if (!fHaveFile)
+  if (!fHaveFile && file != NULL)
     fclose(file);
   return fRet;
 }

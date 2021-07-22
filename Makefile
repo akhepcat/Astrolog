@@ -29,14 +29,14 @@ OBJS = $(SRCS:.cpp=.o)
 # If not compiling with GNUC, delete the "-ldl" part from the line below:
 CXX = g++ 
 
-DEBUG ?= 1
-ifeq (DEBUG,0)
-	CPPFLAGS = -O -Wno-write-strings -Werror # -Wno-narrowing -Wno-comment
-	LIBS = -lm -lX11 -ldl
-else
-	CPPFLAGS = -g3 -Wno-write-strings -Werror
-	LIBS = -g -lm -lX11 -ldl
-endif
+
+# Prod
+CPPFLAGS = -O -Wno-write-strings -Werror # -Wno-narrowing -Wno-comment
+LIBS = -lm -lX11 -ldl
+
+# Debug
+#CPPFLAGS = -g3 -Wno-write-strings -Werror
+#LIBS = -g -lm -lX11 -ldl
 
 all: $(NAME)
 
