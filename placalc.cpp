@@ -52,6 +52,7 @@
 */
 
 #include "placalc.h"
+int _fread_ret;
 
 
 #ifdef PLACALC
@@ -916,7 +917,7 @@ int outer_hel(int planet, REAL8 jd_ad, REAL8 *al, REAL8 *ar, REAL8 *az,
         jd = j0 + (n - 2) * EPHE_STEP;
         if (chi_file_posit(jd, &chironfp) != OK)
           return ERR;
-        fread(&chicoord[n][0], sizeof(word4), 3, chironfp);
+        _fread_ret=fread(&chicoord[n][0], sizeof(word4), 3, chironfp);
         longreorder((UCHAR *)&chicoord[n][0], 3*4);
       }
       last_j0_chiron = j0;
@@ -932,7 +933,7 @@ int outer_hel(int planet, REAL8 jd_ad, REAL8 *al, REAL8 *ar, REAL8 *az,
         jd = j0 + (n - 2) * EPHE_STEP;
         if (ast_file_posit(jd, &asterfp) != OK)
           return ERR;
-        fread(&ascoord[n][0][0], sizeof(word4), 12, asterfp);
+        _fread_ret=fread(&ascoord[n][0][0], sizeof(word4), 12, asterfp);
         longreorder((UCHAR *)&ascoord[n][0][0], 12*4);
       }
       last_j0_aster = j0;
@@ -949,7 +950,7 @@ int outer_hel(int planet, REAL8 jd_ad, REAL8 *al, REAL8 *ar, REAL8 *az,
         jd = j0 + (n - 2) * EPHE_STEP;
         if (lrz_file_posit(jd, &outerfp) != OK)
           return ERR;
-        fread(&icoord[n][0][0], sizeof(word4), 15, outerfp);
+        _fread_ret=fread(&icoord[n][0][0], sizeof(word4), 15, outerfp);
         longreorder((UCHAR *)&icoord[n][0][0], 15*4);
       }
       last_j0_outer = j0;

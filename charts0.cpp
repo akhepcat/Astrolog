@@ -52,7 +52,7 @@
 */
 
 #include "astrolog.h"
-
+#include <cstring>
 
 /*
 ******************************************************************************
@@ -104,9 +104,9 @@ void DisplayCredits(void)
 #else
   *szT = chNull;
 #endif
-  sprintf(sz, "** %s version %s%s **", szAppName, szVersionCore, szT);
+  sprintf(sz, "** %.*s version %.*s%.*s **", (int)strlen(szAppName), szAppName, (int)strlen(szVersionCore), szVersionCore, (int)strlen(szT), szT);
   PrintW(sz, kWhiteA);
-  sprintf(sz, "Released %s - By Walter D. Pullen", szDateCore);
+  sprintf(sz, "Released %.*s - By Walter D. Pullen", (int)strlen(szDateCore), szDateCore);
   PrintW(sz, kLtGrayA);
   PrintW(szAddressCore, kCyanA);
   PrintW(NULL, 0);
@@ -871,7 +871,7 @@ void PrintObjects(void)
       PrintZodiac(es.lon);
       PrintCh(' ');
       PrintAltitude(es.lat);
-      sprintf(sz, " %s\n", es.sz); PrintSz(sz);
+      sprintf(sz, " %.*s\n", (int)strlen(es.sz), es.sz); PrintSz(sz);
     }
   }
 #endif
@@ -1107,7 +1107,7 @@ void PrintConstellations(void)
       sprintf(sz, "the %-18s", szCnstlMeaning[i]);
     PrintSz(sz);
     GetSzConstel(szGen, i);
-    sprintf(sz, " (%s)\n", szGen); PrintSz(sz);
+    sprintf(sz, " (%.*s)\n", (int)strlen(szGen), szGen); PrintSz(sz);
   }
   AnsiColor(kDefault);
 }

@@ -2294,18 +2294,18 @@ again:
       else
         sp = fname;
       if (ipli > SE_AST_OFFSET) {
-        sprintf(s, "asteroid No. %d (%s): ", ipli - SE_AST_OFFSET, sp);
+        sprintf(s, "asteroid No. %d (%.*s): ", ipli - SE_AST_OFFSET, (int)strlen(sp), sp);
       } else if (ipli > SE_PLMOON_OFFSET) {
 	if (strstr(fname, "99.") != NULL) 
-	  sprintf(s, "plan. COB No. %d (%s): ", ipli, sp);
+	  sprintf(s, "plan. COB No. %d (%.*s): ", ipli, (int)strlen(sp), sp);
 	else
-	  sprintf(s, "plan. moon No. %d (%s): ", ipli, sp);
+	  sprintf(s, "plan. moon No. %d (%.*s): ", ipli, (int)strlen(sp), sp);
       } else if (ipli > SEI_PLUTO) {
-        sprintf(s, "asteroid eph. file (%s): ", sp);
+        sprintf(s, "asteroid eph. file (%.*s): ", (int)strlen(sp), sp);
       } else if (ipli != SEI_MOON) {
-        sprintf(s, "planets eph. file (%s): ", sp);
+        sprintf(s, "planets eph. file (%.*s): ", (int)strlen(sp), sp);
       } else {
-        sprintf(s, "moon eph. file (%s): ", sp);
+        sprintf(s, "moon eph. file (%.*s): ", (int)strlen(sp), sp);
       }
       if (tjd < fdp->tfstart)
 	sprintf(s + strlen(s), "jd %f < lower limit %f;", 

@@ -52,7 +52,7 @@
 */
 
 #include "astrolog.h"
-
+#include <cstring>
 
 #ifdef GRAPH
 /*
@@ -193,7 +193,7 @@ void DrawInfo(CI *pci, CONST char *szHeader, flag fAll)
       }
       if (us.rDeltaT != rSmall) {
         FormatR(szT, us.rDeltaT, -4);
-        sprintf(sz, "Special: Delta-T = %s", szT);
+        sprintf(sz, "Special: Delta-T = %.*s", (int)strlen(szT), szT);
         DrawPrint(sz, gi.kiLite, fFalse);
       }
       sprintf(sz, "Julian Day: %13.5f", JulianDayFromTime(is.T));

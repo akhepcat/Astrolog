@@ -630,7 +630,7 @@ int NProcessSwitchesRare(int argc, char **argv, int pos,
     else {
       if (j == 3)
         k = ObjMoons(k);
-      sprintf(szName, FItem(k) ? szObjName[k] : szObjUnknown);
+      sprintf(szName, "%s", FItem(k) ? szObjName[k] : szObjUnknown);
     }
     k = rgPntSwiss[i];
     for (pch = szName; *pch; pch++)
@@ -2735,7 +2735,10 @@ int main()
 #ifdef SWITCHES
   is.szProgName = argv[0];
 #endif
-  FProcessSwitchFile(DEFAULT_INFOFILE, NULL);
+  if(!FProcessSwitchFile(DEFAULT_INFOFILE, NULL)) {
+      perror("Can't open astrolog datafile from default directory!");
+      return(1);
+  }
 #ifdef BETA
   sprintf(szBeta, "This is a beta version of %s %s! "
     "That means changes are still being made and testing is not complete. "

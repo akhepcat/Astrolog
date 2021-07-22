@@ -4,4 +4,10 @@ This is a copy of the "official" version of Astrolog 7.20 (released April 11, 20
 
 The files here were copied from: http://www.astrolog.org/ftp/ast72src.zip
 
-No modifications have been made to any of these files, and the only addition is this GITHUB format README.
+A number of changes have been applied in order to build this project against
+ubuntu 2021.04 (Hirsute) and remediate a number of buffer-overruns in string
+handling.
+
+Only minor testing has been done for this rework, but everything tested is
+working except for those documented in ERRORS.md
+

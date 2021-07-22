@@ -17,18 +17,41 @@
 # library, and if applicable, the main X library.
 #
 NAME = astrolog
-OBJ = astrolog.o atlas.o calc.o charts0.o charts1.o charts2.o charts3.o\
- data.o express.o general.o intrpret.o io.o matrix.o placalc.o placalc2.o\
- xdata.o xgeneral.o xdevice.o xcharts0.o xcharts1.o xcharts2.o xscreen.o\
- swecl.o swedate.o swehouse.o swejpl.o swemmoon.o swemplan.o sweph.o\
- swephlib.o
+SRCS = astrolog.cpp atlas.cpp calc.cpp charts0.cpp charts1.cpp charts2.cpp charts3.cpp\
+ data.cpp express.cpp general.cpp intrpret.cpp io.cpp matrix.cpp placalc.cpp placalc2.cpp\
+ xdata.cpp xgeneral.cpp xdevice.cpp xcharts0.cpp xcharts1.cpp xcharts2.cpp xscreen.cpp\
+ swecl.cpp swedate.cpp swehouse.cpp swejpl.cpp swemmoon.cpp swemplan.cpp sweph.cpp\
+ swephlib.cpp
+
+OBJS = $(SRCS:.cpp=.o)
 
 # If you don't have X windows, delete the "-lX11" part from the line below:
 # If not compiling with GNUC, delete the "-ldl" part from the line below:
-LIBS = -lm -lX11 -ldl
-CPPFLAGS = -O -Wno-write-strings -Wno-narrowing -Wno-comment
+CXX = g++ 
 
-astrolog:: $(OBJ)
-	cc -o $(NAME) $(OBJ) $(LIBS)
+DEBUG ?= 1
+ifeq (DEBUG,0)
+	CPPFLAGS = -O -Wno-write-strings -Werror # -Wno-narrowing -Wno-comment
+	LIBS = -lm -lX11 -ldl
+else
+	CPPFLAGS = -g3 -Wno-write-strings -Werror
+	LIBS = -g -lm -lX11 -ldl
+endif
+
+all: $(NAME)
+
+$(NAME): $(OBJS)
+	$(CXX) -o $@ $^ $(LIBS)
+
+%.0: %.cpp
+	$(CXX) -c $<
+
+clean:
+	-rm -f *.o *~
+
+realclean: clean
+	-rm -f $(NAME)
+
+dist: $(NAME)
 	strip $(NAME)
-#
+

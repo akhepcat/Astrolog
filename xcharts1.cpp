@@ -52,7 +52,7 @@
 */
 
 #include "astrolog.h"
-
+#include <cstring>
 
 #ifdef GRAPH
 /*
@@ -430,7 +430,7 @@ void XChartGrid()
 
   nScale = gi.nScale/gi.nScaleT;
   unit = CELLSIZE*gi.nScale; siz = gi.nGridCell*unit;
-  sprintf(szT, "");
+  sprintf(szT, "%c", 0);
   i = us.fSmartCusp; us.fSmartCusp = fFalse;
   if (!FCreateGrid(gs.fAlt))
     return;
@@ -491,22 +491,22 @@ void XChartGrid()
           // For the aspect portion, print the orb in degrees and minutes.
           if (gs.fAlt ? x > y : x < y) {
             if (grid->n[ig][jg]) {
-              sprintf(sz, "%c%d%c%02d'%s", grid->v[ig][jg] < 0 ?
+              sprintf(sz, "%c%d%c%02d'%.*s", grid->v[ig][jg] < 0 ?
                 (us.fAppSep ? 'a' : '-') : (us.fAppSep ? 's' : '+'),
-                k/60, chDeg2, k%60, szT);
+                k/60, chDeg2, k%60, (int)strlen(szT), szT);
               if (nScale == 3)
                 sz[7] = chNull;
             } else
-              sprintf(sz, "");
+              sprintf(sz, "%c", 0);
 
           // For the midpoint portion, print the degrees and minutes.
           } else if (gs.fAlt ? x < y : x > y)
-            sprintf(sz, "%2d%c%02d'%s", k/60, chDeg2, k%60, szT);
+            sprintf(sz, "%2d%c%02d'%.*s", k/60, chDeg2, k%60, (int)strlen(szT), szT);
 
           // For the main diagonal, print degree and sign of each planet.
           else {
             c = kSignB(grid->n[ig][jg]);
-            sprintf(sz, "%.3s %02d%s", szSignName[grid->n[ig][jg]], k, szT);
+            sprintf(sz, "%.3s %02d%.*s", szSignName[grid->n[ig][jg]], k, (int)strlen(szT), szT);
           }
           DrawColor(c);
           DrawSz(sz, x*unit-unit/2, y*unit-3*gi.nScaleT, dtBottom);

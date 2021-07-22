@@ -160,7 +160,7 @@
 */
 
 #ifndef PC
-#define DEFAULT_DIR "~/astrolog"
+#define DEFAULT_DIR "~/.astrolog"
 #else
 #define DEFAULT_DIR "C:\\Astrolog"
 #endif
@@ -1230,8 +1230,8 @@ enum _terminationcode {
 #define neg(v) v = -(v)
 #define PrintL() PrintCh('\n')
 #define PrintL2() PrintSz("\n\n")
-#define PrintF(sz) fprintf(file, sz)
-#define PrintFSz() fprintf(file, sz)
+#define PrintF(sz) fprintf(file, "%s", sz)
+#define PrintFSz() fprintf(file, "%s", sz)
 #define SwapN(n1, n2) (n1)^=(n2)^=(n1)^=(n2)
 #define FSwitchF(f) ((((f) | fOr) & !fAnd) ^ fNot)
 #define FSwitchF2(f) (((f) | (fOr || fNot)) & !fAnd)

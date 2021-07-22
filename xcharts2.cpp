@@ -52,6 +52,7 @@
 */
 
 #include "astrolog.h"
+#include <cstring>
 
 
 #ifdef GRAPH
@@ -586,7 +587,7 @@ void XChartGridRelation()
 
   nScale = gi.nScale/gi.nScaleT;
   unit = CELLSIZE*gi.nScale; siz = (gi.nGridCell+1)*unit;
-  sprintf(szT, "");
+  sprintf(szT, "%c", 0);
   i = us.fSmartCusp; us.fSmartCusp = fFalse;
   if (!FCreateGridRelation(gs.fAlt != us.fGridMidpoint))
     return;
@@ -657,7 +658,7 @@ void XChartGridRelation()
               if (nScale > 3 && is.fSeconds)
                 sprintf(szT, "%c%02d", chDeg2,
                   (int)((y == 0 ? cp2.obj[i] : cp1.obj[j])*60.0)%60);
-              sprintf(sz, "%.3s %02d%s", szSignName[k], l, szT);
+              sprintf(sz, "%.3s %02d%.*s", szSignName[k], l, (int)strlen(szT), szT);
 
               // For extreme upper left corner, print some little arrows
               // pointing out chart1's planets and chart2's planets.
@@ -673,17 +674,17 @@ void XChartGridRelation()
             // For aspect cells, print the orb in degrees and minutes.
             if (gs.fAlt == us.fGridMidpoint) {
               if (grid->n[i][j]) {
-                sprintf(sz, "%c%d%c%02d'%s", grid->v[i][j] < 0 ?
+                sprintf(sz, "%c%d%c%02d'%.*s", grid->v[i][j] < 0 ?
                   (us.fAppSep ? 'a' : '-') : (us.fAppSep ? 's' : '+'),
-                  k/60, chDeg2, k%60, szT);
+                  k/60, chDeg2, k%60, (int)strlen(szT), szT);
                 if (nScale == 3)
                   sz[7] = chNull;
               } else
-                sprintf(sz, "");
+                sprintf(sz, "%c", 0);
 
             // For midpoint cells, print degree and minute.
             } else
-              sprintf(sz, "%2d%c%02d'%s", k/60, chDeg2, k%60, szT);
+              sprintf(sz, "%2d%c%02d'%.*s", k/60, chDeg2, k%60, (int)strlen(szT), szT);
           }
           DrawColor(c);
           DrawSz(sz, x*unit+unit/2, (y+1)*unit-3*gi.nScaleT, dtBottom);
@@ -1182,7 +1183,7 @@ void XChartTransit(flag fTrans, flag fProg)
 
   DrawColor(gi.kiOn);
   if (!fMonth)
-    sprintf(sz, SzDate(ciT.mon, ciT.day, ciT.yea, fFalse));
+    sprintf(sz, "%s", SzDate(ciT.mon, ciT.day, ciT.yea, fFalse));
   else if (!fYear)
     sprintf(sz, "%3.3s%5d", szMonth[ciT.mon], ciT.yea);
   else if (us.nEphemYears <= 1)

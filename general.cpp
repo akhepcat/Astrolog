@@ -315,7 +315,7 @@ flag FCompareSzSubI(CONST char *sz1, CONST char *sz2)
 
 void FormatR(char *sz, real r, int n)
 {
-  char szT[8], *pch;
+  char szT[16], *pch;
 
   sprintf(szT, "%%.%df", NAbs(n));
   sprintf(sz, szT, r);
@@ -1154,7 +1154,7 @@ void AnsiColor(int k)
       PrintSz(szColorHTML[k]);
     else {
       kv = rgbbmp[k];
-      sprintf(sz, "#%06x", Rgb(RgbB(kv), RgbG(kv), RgbR(kv)));
+      sprintf(sz, "#%06lx", Rgb(RgbB(kv), RgbG(kv), RgbR(kv)));
       PrintSz(sz);
     }
 #else
@@ -1194,7 +1194,7 @@ CONST char *szNakshatra[27+1] = {"",
 
 char *SzZodiac(real deg)
 {
-  static char szZod[12];
+  static char szZod[32];
   int sign, d, m;
   real s;
 
@@ -1345,7 +1345,7 @@ char *SzDate(int mon, int day, int yea, int nFormat)
 
 char *SzTime(int hr, int min, int sec)
 {
-  static char szTim[11];
+  static char szTim[32];
 
   while (min >= 60) {
     min -= 60;
@@ -1386,7 +1386,7 @@ char *SzTim(real tim)
 
 char *SzZone(real zon)
 {
-  static char szZon[7];
+  static char szZon[32];
 
   if (zon == zonLMT)
     sprintf(szZon, "LMT");
@@ -1405,7 +1405,7 @@ char *SzZone(real zon)
 
 char *SzLocation(real lon, real lat)
 {
-  static char szLoc[21];
+  static char szLoc[31];
   int i, j, i2, j2;
   char chDeg, chLon, chLat;
 

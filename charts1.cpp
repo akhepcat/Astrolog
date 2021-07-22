@@ -52,7 +52,7 @@
 */
 
 #include "astrolog.h"
-
+#include <cstring>
 
 /*
 ******************************************************************************
@@ -577,8 +577,8 @@ void PrintWheelCenter(int irow)
   case 5:
     nT = us.fEuroTime; us.fEuroTime = fTrue;
     sprintf(szT, "%s", SzTim(is.RA * (24.0/rDegMax)));
-    sprintf(sz, "UT: %s, Sid.T: %s",
-      SzTim(Tim+Zon-(us.dstDef != dstAuto ? Dst : is.fDst)), szT);
+    sprintf(sz, "UT: %s, Sid.T: %.*s",
+      SzTim(Tim+Zon-(us.dstDef != dstAuto ? Dst : is.fDst)), (int)strlen(szT), szT);
     us.fEuroTime = nT;
     break;
   case 6:
@@ -1106,7 +1106,7 @@ void ChartMidpoint(void)
 
 void ChartHorizon(void)
 {
-  char sz[cchSzDef], szFormat[cchSzDef];
+  char sz[cchSzDef], szFormat[cchSzMax];
   real lon, lat, sx, sy, vx, vy,
     lonz[objMax], latz[objMax], azi[objMax], alt[objMax];
   int fPrime, i, j, k;
@@ -1149,12 +1149,12 @@ void ChartHorizon(void)
   // Now, actually print the location of each object.
 
   sprintf(szFormat, is.fSeconds ? " " : "");
-  sprintf(sz, "\nBody %s%sAltitude%s %s%sAzimuth%s%s%s  Azi. Vector%s    ",
-    szFormat, szFormat, szFormat, szFormat, szFormat,
-    us.fHouse3D ? "  " : "", szFormat, szFormat, szFormat);
+  sprintf(sz, "\nBody %.*s%.*sAltitude%.*s %.*s%.*sAzimuth%s%.*s%.*s  Azi. Vector%.*s    ",
+    (int)strlen(szFormat), szFormat, (int)strlen(szFormat), szFormat, (int)strlen(szFormat), szFormat, (int)strlen(szFormat), szFormat, (int)strlen(szFormat), szFormat,
+    us.fHouse3D ? "  " : "", (int)strlen(szFormat), szFormat, (int)strlen(szFormat), szFormat, (int)strlen(szFormat), szFormat);
   PrintSz(sz);
-  sprintf(sz, "%s Vector%s%s    Moon Vector\n",
-    us.objCenter != oSun ? "Sun" : "Earth", szFormat, szFormat); PrintSz(sz);
+  sprintf(sz, "%s Vector%.*s%.*s    Moon Vector\n",
+    us.objCenter != oSun ? "Sun" : "Earth", (int)strlen(szFormat), szFormat, (int)strlen(szFormat), szFormat); PrintSz(sz);
   for (k = 0; k <= is.nObj; k++) {
     i = rgobjList[k];
     if (ignore[i])
@@ -1166,9 +1166,10 @@ void ChartHorizon(void)
     // Determine directional vector based on azimuth.
 
     if (!us.fHouse3D)
-      sprintf(sz, " %s", SzDegree(azi[i]));
+      sprintf(sz, " %.*s", (int)strlen(SzDegree(azi[i])), SzDegree(azi[i]));
     else {
-      sprintf(sz, " %2d%s", SFromZ(azi[i]),
+      sprintf(sz, " %2d%.*s", SFromZ(azi[i]), 
+        (int)strlen(SzDegree(azi[i]- (real)((SFromZ(azi[i])-1)*30)) ),
         SzDegree(azi[i] - (real)((SFromZ(azi[i])-1)*30)));
     }
     PrintSz(sz);
@@ -1221,11 +1222,13 @@ void ChartOrbit(void)
   int i, j;
 
   sprintf(sz1, is.fSeconds ? " " : "");
-  sprintf(sz, "Body   %s%sAzimuth%s%s   ", sz1, sz1, sz1, sz1);
+  sprintf(sz, "Body   %.*s%.*sAzimuth%.*s%.*s   ", (int)strlen(sz1), sz1, (int)strlen(sz1), sz1, (int)strlen(sz1), sz1, (int)strlen(sz1), sz1);
   PrintSz(sz);
   sprintf(sz,
-    "%s%sX axis%s%s   %s%sY axis%s%s   %s%sZ axis%s%s   %s%sLength\n",
-    sz1, sz1, sz1, sz1, sz1, sz1, sz1, sz1, sz1, sz1, sz1, sz1, sz1, sz1);
+    "%.*s%.*sX axis%.*s%.*s   %.*s%.*sY axis%.*s%.*s   %.*s%.*sZ axis%.*s%.*s   %.*s%.*sLength\n",
+    (int)strlen(sz1), sz1, (int)strlen(sz1), sz1, (int)strlen(sz1), sz1, (int)strlen(sz1), sz1, (int)strlen(sz1), sz1, (int)strlen(sz1), 
+    sz1, (int)strlen(sz1), sz1, (int)strlen(sz1), sz1, (int)strlen(sz1), sz1, (int)strlen(sz1), sz1, (int)strlen(sz1), sz1, (int)strlen(sz1), 
+    sz1, (int)strlen(sz1), sz1, (int)strlen(sz1), sz1);
   PrintSz(sz);
   for (j = 0; j <= oNorm; j++) {
     i = rgobjList[j];

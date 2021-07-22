@@ -52,8 +52,9 @@
 */
 
 #include "astrolog.h"
+#include <cstring>
 
-
+char *_fgets_ret;
 #ifdef ATLAS
 /*
 ******************************************************************************
@@ -933,7 +934,7 @@ flag FLoadAtlas(FILE *file, int cae)
 
   for (i = 0; i < cae; i++) {
     pae = &is.rgae[i];
-    fgets(szLine, cchSzMax, file);
+    _fgets_ret=fgets(szLine, cchSzMax, file);
 
     // Parse location coordinates
     sscanf(szLine, "%lf%lf", &pae->lon, &pae->lat);
@@ -973,7 +974,7 @@ flag FLoadAtlas(FILE *file, int cae)
     pae->szNam[j] = chNull;
     if (pae->icn < 0) {
       sprintf(szLine,
-        "Atlas error: City %d in unknown country/region: '%s'\n", i, szAbb);
+        "Atlas error: City %d in unknown country/region: '%.*s'\n", i, (int)strlen(szAbb), szAbb);
       PrintError(szLine);
       return fFalse;
     }
@@ -995,7 +996,7 @@ flag FLoadAtlas(FILE *file, int cae)
     }
     if (j >= iznMax) {
       sprintf(szLine,
-        "Atlas error: City %d in unknown time zone: '%s'\n", i, pch);
+        "Atlas error: City %d in unknown time zone: '%.*s'\n", i, (int)strlen(pch), pch);
       PrintError(szLine);
       return fFalse;
     }
@@ -1042,7 +1043,7 @@ int NParseHMS(CONST char *sz)
 
 char *SzHMS(int sec)
 {
-  static char szHMS[10];
+  static char szHMS[16];
   int hr, min;
   char ch;
 
@@ -1053,11 +1054,11 @@ char *SzHMS(int sec)
   sec %= 60;
   // Don't display seconds or minutes:seconds if they're zero.
   if (!us.fSeconds && min == 0 && sec == 0)
-    sprintf(szHMS, "%c%d", ch, hr);
+    sprintf(szHMS, "%c%02d", ch, hr);
   else if (!us.fSeconds || sec == 0)
-    sprintf(szHMS, "%c%d:%02d", ch, hr, min);
+    sprintf(szHMS, "%c%02d:%02d", ch, hr, min);
   else
-    sprintf(szHMS, "%c%d:%02d:%02d", ch, hr, min, sec);
+    sprintf(szHMS, "%c%02d:%02d:%02d", ch, hr, min, sec);
   return szHMS;
 }
 
@@ -1095,15 +1096,15 @@ flag FLoadZoneRules(FILE *file, int irunMax, int irueMax)
   // Read in each rule.
   for (i = 0; i < irunMax; i++) {
     prun = &is.rgrun[i];
-    fgets(szLine, cchSzMax, file);
+    _fgets_ret=fgets(szLine, cchSzMax, file);
     for (pch = szLine; *pch > ' '; pch++)
       ;
     if (*pch)
       *pch++ = chNull;
     if (CchSz(szLine) >= cchSzZon) {
-      sprintf(szErr, "Zone rule error: Rule %d (%s) is too long a string, "
+      sprintf(szErr, "Zone rule error: Rule %d (%.*s) is too long a string, "
         "which exceeds string length limit of %d\n",
-        i, szLine, cchSzZon-1);
+        i, (int)strlen(szLine), szLine, cchSzZon-1);
       PrintError(szErr);
       return fFalse;
     }
@@ -1113,9 +1114,9 @@ flag FLoadZoneRules(FILE *file, int irunMax, int irueMax)
     crue = atoi(pch);
     prun[1].irue = prun->irue + crue;
     if (prun[1].irue > irueMax) {
-      sprintf(szErr, "Zone rule error: Rule %d (%s) has %d entries, "
+      sprintf(szErr, "Zone rule error: Rule %d (%.*s) has %d entries, "
         "which exceed total entry limit of %d\n",
-        i, prun->szNam, crue, irueMax);
+        i, (int)strlen(prun->szNam), prun->szNam, crue, irueMax);
       PrintError(szErr);
       return fFalse;
     }
@@ -1123,7 +1124,7 @@ flag FLoadZoneRules(FILE *file, int irunMax, int irueMax)
     // Read in the current rule's list of rule entries.
     for (j = 0; j < crue; j++) {
       prue = &is.rgrue[prun->irue + j];
-      fgets(szLine, cchSzMax, file);
+      _fgets_ret=fgets(szLine, cchSzMax, file);
 
       // Parse year range at which rule entry applies.
       prue->yea1 = atoi(szLine);
@@ -1150,8 +1151,8 @@ flag FLoadZoneRules(FILE *file, int irunMax, int irueMax)
       n = NParseSz(pchT, pmMon);
       if (!FValidMon(n)) {
         sprintf(szErr,
-          "Zone rule error: Bad month in entry %d of rule %d: '%s'\n",
-          j, i, pchT);
+          "Zone rule error: Bad month in entry %d of rule %d: '%.*s'\n",
+          j, i, (int)strlen(pchT), pchT);
         PrintError(szErr);
         return fFalse;
       }
@@ -1175,7 +1176,7 @@ flag FLoadZoneRules(FILE *file, int irunMax, int irueMax)
         n = NParseSz(pchT + 4, pmWeek);
         if (!FValidWeek(n)) {
           sprintf(szErr, "Zone rule error: "
-            "Bad lastDay of week in entry %d of rule %d: '%s'\n", j, i, pchT);
+            "Bad lastDay of week in entry %d of rule %d: '%.*s'\n", j, i, (int)strlen(pchT), pchT);
           PrintError(szErr);
           return fFalse;
         }
@@ -1186,15 +1187,15 @@ flag FLoadZoneRules(FILE *file, int irunMax, int irueMax)
         n = NParseSz(pchT, pmWeek);
         if (!FValidWeek(n)) {
           sprintf(szErr, "Zone rule error: "
-            "Bad Day==X of week in entry %d of rule %d: '%s'\n", j, i, pchT);
+            "Bad Day==X of week in entry %d of rule %d: '%.*s'\n", j, i, (int)strlen(pchT), pchT);
           PrintError(szErr);
           return fFalse;
         }
         prue->dayweek = n;
         if (!((chT == '>' || chT == '<') && pchT[4] == '=')) {
           sprintf(szErr, "Zone rule error: "
-            "Day operator not >= or <= in entry %d of rule %d: '%s'\n",
-            j, i, pchT);
+            "Day operator not >= or <= in entry %d of rule %d: '%.*s'\n",
+            j, i, (int)strlen(pchT), pchT);
           PrintError(szErr);
           return fFalse;
         }
@@ -1262,7 +1263,7 @@ flag FLoadZoneChanges(FILE *file, int izcnMax, int izceMax)
 
   // Read in each zone change area.
   for (i = 0; i < izcnMax; i++) {
-    fgets(szLine, cchSzMax, file);
+    _fgets_ret=fgets(szLine, cchSzMax, file);
     for (pch = szLine; *pch > ' '; pch++)
       ;
     if (*pch)
@@ -1272,7 +1273,7 @@ flag FLoadZoneChanges(FILE *file, int izcnMax, int izceMax)
         break;
     }
     if (izn >= iznMax) {
-      sprintf(szErr, "Zone change error: Zone %d unknown: '%s'\n", i, szLine);
+      sprintf(szErr, "Zone change error: Zone %d unknown: '%.*s'\n", i, (int)strlen(szLine), szLine);
       PrintError(szErr);
       return fFalse;
     }
@@ -1280,9 +1281,9 @@ flag FLoadZoneChanges(FILE *file, int izcnMax, int izceMax)
     czn = atoi(pch);
     rgizcChange[i+1] = rgizcChange[i] + czn;
     if (rgizcChange[i+1] > izceMax) {
-      sprintf(szErr, "Zone change error: Zone %d (%s) has %d entries, "
+      sprintf(szErr, "Zone change error: Zone %d (%.*s) has %d entries, "
         "which exceed total entry limit of %d\n",
-        i, rgszzn[izn], czn, izceMax);
+        i, (int)strlen(rgszzn[izn]), rgszzn[izn], czn, izceMax);
       PrintError(szErr);
       return fFalse;
     }
@@ -1290,7 +1291,7 @@ flag FLoadZoneChanges(FILE *file, int izcnMax, int izceMax)
     // Read in the current zone's list of zone change entries.
     for (j = 0; j < czn; j++) {
       pzc = &is.rgzc[rgizcChange[i] + j];
-      fgets(szLine, cchSzMax, file);
+      _fgets_ret=fgets(szLine, cchSzMax, file);
 
       // Parse offset to use for this time zone.
       for (pch = szLine; *pch > ' '; pch++)
@@ -1319,8 +1320,8 @@ flag FLoadZoneChanges(FILE *file, int izcnMax, int izceMax)
           pzc->dst = NParseHMS(pchT);
         else if (*pchT != '-') {
           sprintf(szErr,
-            "Zone change error: Unknown rule in entry %d of zone %d: '%s'\n",
-            j, i, pchT);
+            "Zone change error: Unknown rule in entry %d of zone %d: '%.*s'\n",
+            j, i, (int)strlen(pchT), pchT);
           PrintError(szErr);
           return fFalse;
         }
@@ -1349,8 +1350,8 @@ flag FLoadZoneChanges(FILE *file, int izcnMax, int izceMax)
       n = NParseSz(pchT, pmMon);
       if (!FValidMon(n)) {
         sprintf(szErr,
-          "Zone change error: Bad month in entry %d of zone %d: '%s'\n",
-          j, i, pchT);
+          "Zone change error: Bad month in entry %d of zone %d: '%.*s'\n",
+          j, i, (int)strlen(pchT), pchT);
         PrintError(szErr);
         return fFalse;
       }
@@ -1383,8 +1384,8 @@ flag FLoadZoneChanges(FILE *file, int izcnMax, int izceMax)
   // Sanity check results.
   for (i = 0; i < is.crun; i++)
     if (!rgfUsed[i]) {
-      sprintf(szErr, "Zone change error: Rule %d (%s) is never used "
-        "by any zone change entry.\n", i, is.rgrun[i].szNam);
+      sprintf(szErr, "Zone change error: Rule %d (%.*s) is never used "
+        "by any zone change entry.\n", i, (int)strlen(is.rgrun[i].szNam), is.rgrun[i].szNam);
       PrintError(szErr);
       return fFalse;
     }
@@ -1418,7 +1419,7 @@ flag FLoadZoneLinks(FILE *file, int czl)
 
   // Read in each link.
   for (i = 0; i < czl; i++) {
-    fgets(szLine, cchSzMax, file);
+    _fgets_ret=fgets(szLine, cchSzMax, file);
     for (pch = szFrom = szLine; *pch > ' '; pch++)
       ;
     if (*pch)
@@ -1434,8 +1435,8 @@ flag FLoadZoneLinks(FILE *file, int czl)
         break;
     }
     if (iznFrom >= iznMax) {
-      sprintf(szErr, "Zone link error: Link %d from unknown: '%s'\n",
-        i, szFrom);
+      sprintf(szErr, "Zone link error: Link %d from unknown: '%.*s'\n",
+        i, (int)strlen(szFrom), szFrom);
       PrintError(szErr);
       return fFalse;
     }
@@ -1446,7 +1447,7 @@ flag FLoadZoneLinks(FILE *file, int czl)
         break;
     }
     if (iznTo >= iznMax) {
-      sprintf(szErr, "Zone link error: Link %d to unknown: '%s'\n", i, szTo);
+      sprintf(szErr, "Zone link error: Link %d to unknown: '%.*s'\n", i, (int)strlen(szTo), szTo);
       PrintError(szErr);
       return fFalse;
     }
@@ -1456,8 +1457,8 @@ flag FLoadZoneLinks(FILE *file, int czl)
       if (iznFrom == rgznChange[izc])
         break;
     if (izc < is.czcn) {
-      sprintf(szErr, "Zone link error: Link %d redirects defined: '%s'\n",
-        i, rgszzn[iznFrom]);
+      sprintf(szErr, "Zone link error: Link %d redirects defined: '%.*s'\n",
+        i, (int)strlen(rgszzn[iznFrom]), rgszzn[iznFrom]);
       PrintError(szErr);
       return fFalse;
     }
@@ -1467,8 +1468,8 @@ flag FLoadZoneLinks(FILE *file, int czl)
       if (iznTo == rgznChange[izc])
         break;
     if (izc >= is.czcn) {
-      sprintf(szErr, "Zone link error: Link %d to undefined: '%s'\n",
-        i, rgszzn[iznTo]);
+      sprintf(szErr, "Zone link error: Link %d to undefined: '%.*s'\n",
+        i, (int)strlen(rgszzn[iznTo]), rgszzn[iznTo]);
       PrintError(szErr);
       return fFalse;
     }
@@ -1483,8 +1484,8 @@ flag FLoadZoneLinks(FILE *file, int czl)
       if (izn == rgznChange[izc])
         break;
     if (izc >= is.czcn) {
-      sprintf(szErr, "Zone link error: Zone %d undefined: '%s'\n",
-        izn, rgszzn[izn]);
+      sprintf(szErr, "Zone link error: Zone %d undefined: '%.*s'\n",
+        izn, (int)strlen(rgszzn[izn]), rgszzn[izn]);
       PrintError(szErr);
       return fFalse;
     }
@@ -1646,9 +1647,9 @@ flag DisplayAtlasLookup(CONST char *szIn, size_t lDialog, int *piae)
       pch++;
     if (fTimezoneChanges) {
       zon = ZondefFromIzn(pae->izn);
-      sprintf(sz, "%s (%s, %s)", SzCity(rgiae[i]), pch, SzZone(zon));
+      sprintf(sz, "%.*s (%.*s, %.*s)", (int)strlen(SzCity(rgiae[i])), SzCity(rgiae[i]), (int)strlen(pch), pch, (int)strlen(SzZone(zon)), SzZone(zon));
     } else
-      sprintf(sz, "%s (%s)", SzCity(rgiae[i]), pch);
+      sprintf(sz, "%.*s (%.*s)", (int)strlen(SzCity(rgiae[i])), SzCity(rgiae[i]), (int)strlen(pch), pch);
 #ifdef WIN
     if (hdlg != NULL) {
       SetListN(dlIn, sz, rgiae[i], j);
@@ -1746,11 +1747,11 @@ flag DisplayAtlasNearby(real lon, real lat, size_t lDialog, int *piae)
       pch++;
     if (fTimezoneChanges) {
       zon = ZondefFromIzn(pae->izn);
-      sprintf(sz, "%d %s: %s (%s, %s)", rgn[i], us.fEuroDist ? "km" : "mi",
-        SzCity(rgiae[i]), pch, SzZone(zon));
+      sprintf(sz, "%d %.*s: %.*s (%.*s, %.*s)", rgn[i], 2, us.fEuroDist ? "km" : "mi",
+        (int)strlen(SzCity(rgiae[i])), SzCity(rgiae[i]), (int)strlen(pch), pch, (int)strlen(SzZone(zon)), SzZone(zon));
     } else
-      sprintf(sz, "%d %s: %s (%s)", rgn[i], us.fEuroDist ? "km" : "mi",
-        SzCity(rgiae[i]), pch);
+      sprintf(sz, "%d %.*s: %.*s (%.*s)", rgn[i], 2, us.fEuroDist ? "km" : "mi",
+        (int)strlen(SzCity(rgiae[i])), SzCity(rgiae[i]), (int)strlen(pch), pch);
 #ifdef WIN
     if (hdlg != NULL) {
       SetListN(dlIn, sz, rgiae[i], j);

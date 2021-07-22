@@ -1164,7 +1164,7 @@ void PsBegin()
     fprintf(gi.file, "%%%%BoundingBox: 0 0 %d %d\n", gs.xWin, gs.yWin);
     fprintf(gi.file, "%%%%EndComments\n");
     fprintf(gi.file, "%%%%BeginSetup\n");
-    fprintf(gi.file, szPsFunctions, 6 * PSMUL, 6 * PSMUL);
+    fprintf(gi.file, "%s %d %d\n", szPsFunctions, 6 * PSMUL, 6 * PSMUL);
     fprintf(gi.file, "%%%%EndSetup\n");
     fprintf(gi.file, "0 0 %d %d rc\n", gs.xWin, gs.yWin);
   } else {
@@ -1175,7 +1175,7 @@ void PsBegin()
       (int)(gs.yInch*72.0+rRound)-PSGUTTER);
     fprintf(gi.file, "%%%%EndComments\n");
     fprintf(gi.file, "%%%%BeginProcSet: common\n");
-    fprintf(gi.file, szPsFunctions, 6 * PSMUL, 6 * PSMUL);
+    fprintf(gi.file, "%s %d %d\n", szPsFunctions, 6 * PSMUL, 6 * PSMUL);
     fprintf(gi.file, "%%%%EndProcSet\n");
     fprintf(gi.file, "%%%%Page: 1 1\n");
   }

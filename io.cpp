@@ -50,9 +50,11 @@
 ** PostScript graphics initially programmed 11/29-30/1992.
 ** Last code change made 4/11/2021.
 */
-
+#include <cstring>
+#include <algorithm>
 #include "astrolog.h"
 
+int _fscanf_ret;
 
 /*
 ******************************************************************************
@@ -90,7 +92,7 @@ FILE *FileOpen(CONST char *szFile, int nFileMode, char *szPath)
 #ifdef WIN
     GetModuleFileName(wi.hinst, sz, cchSzMax);
 #else
-    sprintf(sz, "%s", is.szProgName != NULL ? is.szProgName : "");
+    sprintf(sz, "%.*s", (int)strlen(is.szProgName), is.szProgName != NULL ? is.szProgName : "");
 #endif
     for (pch = sz; *pch; pch++)
       ;
@@ -112,7 +114,7 @@ FILE *FileOpen(CONST char *szFile, int nFileMode, char *szPath)
     // Next look in the directories indicated by the -Yi switch.
     for (j = 0; j < 10; j++)
       if (us.rgszPath[j] && *us.rgszPath[j]) {
-        sprintf(sz, "%s%c%s", us.rgszPath[j], chDirSep, szFileT);
+        sprintf(sz, "%.*s%c%.*s", (int)strlen(us.rgszPath[j]), us.rgszPath[j], chDirSep, (int)strlen(szFileT), szFileT);
         file = fopen(sz, szMode);
         if (file != NULL)
           goto LDone;
@@ -124,7 +126,7 @@ FILE *FileOpen(CONST char *szFile, int nFileMode, char *szPath)
     sprintf(sz, "%s%s", ENVIRONVER, szVerCore);
     env = getenv(sz);
     if (env && *env) {
-      sprintf(sz, "%s%c%s", env, chDirSep, szFileT);
+      sprintf(sz, "%.*s%c%.*s", (int)strlen(env), env, chDirSep, (int)strlen(szFileT), szFileT);
       file = fopen(sz, szMode);
       if (file != NULL)
         goto LDone;
@@ -133,7 +135,7 @@ FILE *FileOpen(CONST char *szFile, int nFileMode, char *szPath)
     // Next look in the directory in the general environment variable.
     env = getenv(ENVIRONALL);
     if (env && *env) {
-      sprintf(sz, "%s%c%s", env, chDirSep, szFileT);
+      sprintf(sz, "%.*s%c%.*s", (int)strlen(env), env, chDirSep, (int)strlen(szFileT), szFileT);
       file = fopen(sz, szMode);
       if (file != NULL)
         goto LDone;
@@ -142,7 +144,7 @@ FILE *FileOpen(CONST char *szFile, int nFileMode, char *szPath)
     // Next look in directory in the version prefix environment variable.
     env = getenv(ENVIRONVER);
     if (env && *env) {
-      sprintf(sz, "%s%c%s", env, chDirSep, szFileT);
+      sprintf(sz, "%.*s%c%.*s", (int)strlen(env), env, chDirSep, (int)strlen(szFileT), szFileT);
       file = fopen(sz, szMode);
       if (file != NULL)
         goto LDone;
@@ -150,8 +152,8 @@ FILE *FileOpen(CONST char *szFile, int nFileMode, char *szPath)
 #endif
 
     // Finally look in one of several compile time specified directories.
-    sprintf(sz, "%s%c%s", nFileMode == 0 ? DEFAULT_DIR :
-      (nFileMode == 1 ? CHART_DIR : EPHE_DIR), chDirSep, szFileT);
+    sprintf(sz, "%.*s%c%.*s", (int)std::max({strlen(DEFAULT_DIR), strlen(CHART_DIR), strlen(EPHE_DIR)}), nFileMode == 0 ? DEFAULT_DIR :
+      (nFileMode == 1 ? CHART_DIR : EPHE_DIR), chDirSep, (int)strlen(szFileT), szFileT);
     file = fopen(sz, szMode);
     if (file != NULL)
       goto LDone;
@@ -160,13 +162,13 @@ FILE *FileOpen(CONST char *szFile, int nFileMode, char *szPath)
   if (file == NULL && FOdd(nFileMode)) {
     // If file was never found, print an error (unless we were looking for a
     // certain file type, e.g. the optional astrolog.as file).
-    sprintf(sz, "File '%s' not found.", szFile);
+    sprintf(sz, "File '%.*s' not found.", (int)strlen(szFile), szFile);
     PrintError(sz);
   }
 
 LDone:
   if (file != NULL && szPath != NULL) {
-    sprintf(szPath, "%s", sz);
+    sprintf(szPath, "%.*s", (int)strlen(sz), sz);
     fclose(file);
   }
   return file;
@@ -427,9 +429,9 @@ flag FProcessAAFFile(CONST char *szFile, FILE *file)
       AdvancePast(',');
       pch[-1] = chNull;
       if (*sz1 && NCompareSz(sz1, "*") != 0)
-        sprintf(sz, "%s %s", sz2, sz1);
+        sprintf(sz, "%.*s %.*s", (int)strlen(sz2), sz2, (int)strlen(sz1), sz1);
       else
-        sprintf(sz, "%s", sz2);
+        sprintf(sz, "%.*s", (int)strlen(sz2), sz2);
       ciCore.nam = SzPersist(sz);
       AdvancePast(',');
       DD = NFromSz(pch);
@@ -453,9 +455,9 @@ flag FProcessAAFFile(CONST char *szFile, FILE *file)
             *pch = chNull;
       }
       if (*sz1)
-        sprintf(sz, "%s, %s", sz1, sz2);
+        sprintf(sz, "%.*s, %.*s", (int)strlen(sz1), sz1, (int)strlen(sz2), sz2);
       else
-        sprintf(sz, "%s", sz2);
+        sprintf(sz, "%.*s", (int)strlen(sz2), sz2);
       ciCore.loc = SzPersist(sz);
 
     // Input row #2.
@@ -474,7 +476,7 @@ flag FProcessAAFFile(CONST char *szFile, FILE *file)
         SS = RParseSz(pch, pmDst);
     } else {
       sprintf(szLine,
-        "The AAF file '%s' has a line that can't be parsed.", szFile);
+        "The AAF file '%.*s' has a line that can't be parsed.", (int)strlen(szFile), szFile);
       PrintWarning(szLine);
       goto LDone;
     }
@@ -1496,8 +1498,8 @@ flag FInputData(CONST char *szFile)
 
   } else if (FNumCh(ch)) {
     SS = 0.0;
-    fscanf(file, "%d%d%d", &MM, &DD, &YY);
-    fscanf(file, "%lf%lf%lf%lf", &TT, &ZZ, &OO, &AA);
+    _fscanf_ret=fscanf(file, "%d%d%d", &MM, &DD, &YY);
+    _fscanf_ret=fscanf(file, "%lf%lf%lf%lf", &TT, &ZZ, &OO, &AA);
     TT = DecToDeg(TT); ZZ = DecToDeg(ZZ);
     OO = DecToDeg(OO); AA = DecToDeg(AA);
     if (!FValidMon(MM) || !FValidDay(DD, MM, YY) || !FValidYea(YY) ||
@@ -1517,9 +1519,9 @@ flag FInputData(CONST char *szFile)
     // already in memory so we don't have to calculate them later.
 
     for (i = 1; i <= oNorm; i++) {
-      fscanf(file, "%s%lf%lf%lf", sz, &k, &l, &m);
+      _fscanf_ret=fscanf(file, "%s%lf%lf%lf", sz, &k, &l, &m);
       planet[i] = Mod((l-1.0)*30.0+k+m/60.0);
-      fscanf(file, "%s%lf%lf", sz, &k, &l);
+      _fscanf_ret=fscanf(file, "%s%lf%lf", sz, &k, &l);
       if ((m = k+l/60.0) > rDegHalf)
         m = rDegMax - m;
       planetalt[i] = m;
@@ -1546,7 +1548,7 @@ flag FInputData(CONST char *szFile)
         i = oVtx-1;
     }
     for (i = 1; i <= cSign/2; i++) {
-      fscanf(file, "%s%lf%lf%lf", sz, &k, &l, &m);
+      _fscanf_ret=fscanf(file, "%s%lf%lf%lf", sz, &k, &l, &m);
       chouse[i+6] = Mod((chouse[i] = Mod((l-1.0)*30.0+k+m/60.0))+rDegHalf);
     }
     for (i = 1; i <= cSign; i++)
