@@ -160,7 +160,7 @@
 */
 
 #ifndef PC
-#define DEFAULT_DIR "~/.astrolog"
+#define DEFAULT_DIR "/usr/local/share/astrolog"
 #else
 #define DEFAULT_DIR "C:\\Astrolog"
 #endif
